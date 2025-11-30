@@ -1,3 +1,6 @@
+using Kino.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace Kino
 {
     public class Program
@@ -5,6 +8,8 @@ namespace Kino
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
