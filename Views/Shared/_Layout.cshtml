@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,22 +12,130 @@
     <link rel="stylesheet" href="~/Kino.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <style>
+        .cinema-navbar {
+            background-color: rgba(20, 20, 20, 0.95) !important; 
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .cinema-brand {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #e50914 !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+            .cinema-brand:hover {
+                transform: scale(1.05);
+            }
+
+        .nav-link-custom {
+            color: #ccc !important;
+            font-weight: 500;
+            margin-right: 15px;
+            transition: color 0.3s;
+        }
+
+            .nav-link-custom:hover {
+                color: white !important;
+            }
+
+        .btn-header-login {
+            background-color: #e50914;
+            color: white !important;
+            border-radius: 4px;
+            padding: 6px 15px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+            .btn-header-login:hover {
+                background-color: #f40612;
+            }
+
+        .admin-badge {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: black !important;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Kino</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <nav class="navbar navbar-expand-md cinema-navbar">
+            <div class="container">
+
+                <a class="cinema-brand" asp-controller="Home" asp-action="Index">
+                    🍿 MULTIPLEX
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link nav-link-custom" asp-controller="Home" asp-action="Index">Афіша</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @{
+                            var userName = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+                            var userType = HttpContextAccessor.HttpContext.Session.GetString("UserType");
+                        }
+
+                        @if (userType == "Admin")
+                        {
+                            <li class="nav-item me-3">
+                                <a class="admin-badge" asp-controller="Admin" asp-action="Index">
+                                    👑 Адмін-панель
+                                </a>
+                            </li>
+                        }
+
+                        @if (string.IsNullOrEmpty(userName))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom" asp-controller="Account" asp-action="Register">Реєстрація</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn-header-login" asp-controller="Account" asp-action="Login">Увійти</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link nav-link-custom dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span style="color: white;">👤 @userName</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item text-light" asp-controller="Account" asp-action="Profile">🎫 Мої квитки</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">Вийти</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -36,11 +147,6 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - Kino - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

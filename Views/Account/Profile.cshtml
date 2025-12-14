@@ -1,0 +1,64 @@
+﻿@model Kino.Models.Client
+@{
+    ViewData["Title"] = "Мій кабінет";
+}
+
+<div class="container mt-5">
+    <div class="d-flex align-items-center mb-5 p-4" style="background: #1e1e1e; border-radius: 10px; border: 1px solid #333;">
+        <div style="font-size: 3rem; margin-right: 20px;">👤</div>
+        <div>
+            <h2 class="m-0">Привіт, @Model.FirstName!</h2>
+            <p class="text-muted m-0">@Model.Email | Бонуси: <span style="color: gold;">@Model.BonusPoints</span></p>
+        </div>
+        <div class="ms-auto">
+            <a asp-action="Logout" class="btn btn-outline-danger btn-sm">Вийти</a>
+        </div>
+    </div>
+
+    <h3 class="mb-4 text-white">🎟️ Мої квитки</h3>
+
+    @if (!Model.Bookings.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <h4>У вас поки немає квитків 😔</h4>
+            <a asp-controller="Home" asp-action="Index" class="btn-cinema mt-3">Обрати фільм</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var booking in Model.Bookings)
+            {
+                var session = booking.Tickets.FirstOrDefault()?.Session;
+                if (session == null) continue;
+
+                <div class="col-md-6 mb-4">
+                    <div class="card bg-dark text-white border-secondary h-100 shadow">
+                        <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.05);">
+                            <span class="badge @(booking.Status == "Paid" ? "bg-success" : "bg-warning text-dark")">
+                                @(booking.Status == "Paid" ? "Оплачено" : "Очікує")
+                            </span>
+                            <small class="text-muted">#@booking.BookingId • @booking.BookingTime.ToString("dd.MM.yyyy")</small>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">@session.Film.TitleUkrainian</h5>
+                            <p class="mb-1">📅 @session.StartTime.ToString("dd MMMM HH:mm")</p>
+                            <p class="mb-3">🏛 Зал @session.Hall.HallNumber</p>
+
+                            <div class="p-2 mb-3 rounded" style="background: #111;">
+                                @foreach (var t in booking.Tickets)
+                                {
+                                    <div class="small">🎟 Ряд @t.Seat.RowNumber, Місце @t.Seat.SeatNumber</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-secondary d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">@booking.TotalAmount.ToString("0") грн</span>
+                            <button class="btn btn-sm btn-outline-light" disabled>PDF на пошті</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

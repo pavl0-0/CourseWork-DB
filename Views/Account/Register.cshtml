@@ -1,0 +1,56 @@
+﻿@model Kino.Models.Client
+
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<div class="container" style="margin-top: 80px;">
+    <div class="cinema-form-card" style="max-width: 500px; border-color: var(--accent-color);">
+        <h2 class="text-center mb-4">🚀 Реєстрація</h2>
+
+        <form asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="FirstName" class="control-label">Ім'я</label>
+                        <input asp-for="FirstName" class="form-control" placeholder="Іван" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="LastName" class="control-label">Прізвище</label>
+                        <input asp-for="LastName" class="form-control" placeholder="Петренко" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="control-label">E-mail</label>
+                <input asp-for="Email" class="form-control" placeholder="ivan@gmail.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="PhoneNumber" class="control-label">Телефон</label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="+380..." />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="PasswordHash" class="control-label">Пароль</label>
+                <input asp-for="PasswordHash" class="form-control" type="password" />
+                <span asp-validation-for="PasswordHash" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-cinema w-100">Зареєструватися</button>
+
+            <div class="text-center mt-3">
+                <a asp-action="Login" class="text-muted small">Вже є акаунт? Увійти</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@model Kino.ViewModels.FilmCrewViewModel
+
+@{
+    ViewData["Title"] = "Знімальна група";
+}
+
+<div class="container" style="margin-top: 50px;">
+
+    <div class="text-center mb-4">
+        <h2 style="color: var(--accent-color);">@Model.FilmTitle</h2>
+        <p class="text-muted">Управління командою фільму</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="cinema-form-card">
+                <h4 class="mb-3">У ролях / Команда</h4>
+
+                @if (!Model.ExistingCrew.Any())
+                {
+                    <p class="text-muted text-center">Ще нікого не додано.</p>
+                }
+                else
+                {
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Персона</th>
+                                <th>Роль</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ExistingCrew)
+                            {
+                                <tr>
+                                    <td>
+                                        <span style="font-weight: bold; font-size: 1.1rem;">@item.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@item.RoleName</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <form asp-action="RemoveCrewMember" method="post" style="display:inline;">
+                                            <input type="hidden" name="filmId" value="@Model.FilmId" />
+                                            <input type="hidden" name="personId" value="@item.PersonId" />
+                                            <input type="hidden" name="roleId" value="@item.RoleId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">✕</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="cinema-form-card" style="border-color: var(--accent-color);">
+                <h4 class="mb-3">➕ Додати учасника</h4>
+
+                <form asp-action="AddCrewMember">
+                    <input type="hidden" asp-for="FilmId" />
+
+                    <div class="form-group mb-3">
+                        <label class="control-label">Оберіть персону</label>
+                        <select asp-for="PersonId" asp-items="Model.PersonsList" class="form-control"></select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="control-label">Оберіть роль</label>
+                        <select asp-for="RoleId" asp-items="Model.RolesList" class="form-control"></select>
+                    </div>
+
+                    <button type="submit" class="btn-cinema w-100">Додати</button>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <a asp-controller="People" asp-action="Create" class="small text-muted">+ Створити нову персону</a>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a asp-action="Index" class="btn-secondary">← До списку фільмів</a>
+            </div>
+        </div>
+    </div>
+</div>

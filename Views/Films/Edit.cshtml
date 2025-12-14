@@ -1,0 +1,97 @@
+﻿@model Kino.ViewModels.FilmFormViewModel
+
+@{
+    ViewData["Title"] = "Редагувати фільм";
+}
+
+<div class="container" style="margin-top: 30px;">
+
+    <div class="cinema-form-card" style="max-width: 800px;">
+        <h2 style="text-align: center; margin-bottom: 30px;">Редагування</h2>
+
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="FilmId" />
+            <input type="hidden" asp-for="CurrentPosterUrl" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TitleUkrainian" class="control-label"></label>
+                        <input asp-for="TitleUkrainian" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TitleOriginal" class="control-label"></label>
+                        <input asp-for="TitleOriginal" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TrailerUrl" class="control-label">Трейлер (URL)</label>
+                        <input asp-for="TrailerUrl" class="form-control" placeholder="https://youtube.com/..." />
+                        <span asp-validation-for="TrailerUrl" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <label asp-for="ReleaseDate" class="control-label"></label>
+                            <input asp-for="ReleaseDate" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="DurationMinutes" class="control-label"></label>
+                            <input asp-for="DurationMinutes" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group text-center">
+                        <label class="control-label">Поточний постер</label><br />
+                        @if (!string.IsNullOrEmpty(Model.CurrentPosterUrl))
+                        {
+                            <img src="~/images/posters/@Model.CurrentPosterUrl" style="max-height: 200px; border-radius: 5px; margin-bottom: 10px;" />
+                        }
+                        else
+                        {
+                            <p class="text-muted">Немає фото</p>
+                        }
+                        <input asp-for="PosterFile" class="form-control" type="file" accept="image/*" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AgeRating" class="control-label">Вік</label>
+                        <select asp-for="AgeRating" class="form-control">
+                            <option value="0+">0+</option>
+                            <option value="6+">6+</option>
+                            <option value="12+">12+</option>
+                            <option value="16+">16+</option>
+                            <option value="18+">18+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Budget" class="control-label">Бюджет ($)</label>
+                        <input asp-for="Budget" class="form-control" type="number" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SelectedGenreIds" class="control-label">Жанри (Ctrl+Click)</label>
+                        <select asp-for="SelectedGenreIds" asp-items="Model.AllGenres" class="form-control" multiple style="height: 100px; background-color: #2b2b2b; color: white;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="SelectedCountryIds" class="control-label">Країни (Ctrl+Click)</label>
+                        <select asp-for="SelectedCountryIds" asp-items="Model.AllCountries" class="form-control" multiple style="height: 80px; background-color: #2b2b2b; color: white;"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px; text-align: center;">
+                <input type="submit" value="Зберегти зміни" class="btn-cinema" />
+                <a asp-action="Index" class="btn-secondary">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+﻿@model Kino.Models.Person
+
+@{
+    ViewData["Title"] = "Редагування";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="cinema-form-card">
+        <h2 style="text-align: center; margin-bottom: 30px;">Редагувати</h2>
+
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PersonId" />
+
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label">Повне ім'я</label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px; text-align: center;">
+                <input type="submit" value="Зберегти" class="btn-cinema" />
+                <a asp-action="Index" class="btn-secondary">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>

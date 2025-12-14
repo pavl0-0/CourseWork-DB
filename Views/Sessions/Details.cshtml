@@ -1,0 +1,49 @@
+﻿@model Kino.Models.Session
+
+@{
+    ViewData["Title"] = "Деталі сеансу";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="cinema-form-card" style="max-width: 600px;">
+        <h2 style="text-align: center; margin-bottom: 30px;">Інфо про сеанс</h2>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            @if (!string.IsNullOrEmpty(Model.Film.PosterUrl))
+            {
+                <img src="~/images/posters/@Model.Film.PosterUrl" style="width: 120px; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);" />
+            }
+            <h3 style="color: var(--accent-color); margin-top: 15px;">@Model.Film.TitleUkrainian</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="control-label">Дата</label>
+                    <input value="@Model.StartTime.ToString("dd.MM.yyyy")" class="form-control" readonly />
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label class="control-label">Час</label>
+                    <input value="@Model.StartTime.ToString("HH:mm")" class="form-control" readonly />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Зал</label>
+            <input value="Зал №@Model.Hall.HallNumber (@Model.Hall.ScreenType)" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Базова ціна</label>
+            <input value="@Model.BaseTicketPrice грн" class="form-control" readonly style="font-weight: bold; color: #28a745 !important;" />
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a asp-action="Edit" asp-route-id="@Model.SessionId" class="btn-cinema">✏️ Редагувати</a>
+            <a asp-action="Index" class="btn-secondary">Назад</a>
+        </div>
+    </div>
+</div>

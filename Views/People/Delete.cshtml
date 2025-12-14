@@ -1,0 +1,35 @@
+﻿@model Kino.Models.Person
+
+@{
+    ViewData["Title"] = "Видалити персону";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="cinema-form-card" style="border-color: #e50914; max-width: 500px;">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #e50914;">Видалення</h2>
+
+        <div style="text-align: center;">
+            <p class="delete-warning" style="font-size: 1.1rem;">
+                Видалити цю персону зі списку?
+            </p>
+
+            <div style="background: #2b2b2b; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <div style="font-size: 2rem;">👤</div>
+                <h3 style="margin-top: 10px; color: white;">@Model.FullName</h3>
+            </div>
+
+            <p class="text-muted small">
+                Якщо ця людина зазначена у титрах фільмів, видалення може бути заблоковане.
+            </p>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="PersonId" />
+                <div style="margin-top: 30px;">
+                    <input type="submit" value="Так, видалити" class="btn-cinema" style="background-color: darkred; width: 100%;" />
+                    <br /><br />
+                    <a asp-action="Index" class="btn-secondary">Скасувати</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

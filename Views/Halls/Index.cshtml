@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Kino.Models.Hall>
+
+@{
+    ViewData["Title"] = "Зали";
+}
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Кінозали</h1>
+        <a asp-action="Create" class="btn-cinema">+ Додати зал</a>
+    </div>
+
+    <div class="cinema-grid">
+        @foreach (var item in Model)
+        {
+            <div class="genre-card">
+                <div style="font-size: 2rem; margin-bottom: 5px;">📺</div>
+
+                <span class="genre-name">Зал №@item.HallNumber</span>
+
+                <p style="color: #b3b3b3; font-size: 0.9rem; margin-bottom: 15px;">
+                    Місць: <strong style="color: white;">@item.SeatCapacity</strong><br />
+                    Екран: @(item.ScreenType ?? "-")<br />
+                    Звук: @(item.SoundType ?? "-")
+                </p>
+
+                <div class="card-actions">
+                    <a asp-action="Edit" asp-route-id="@item.HallId">Редагувати</a> |
+                    <a asp-action="GenerateSeats" asp-route-id="@item.HallId" style="color: #ffc107;">Місця</a> |
+                    <a asp-action="Details" asp-route-id="@item.HallId">Деталі</a> |
+                    <a asp-action="Delete" asp-route-id="@item.HallId" class="delete-link">Видалити</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; margin-top: 50px; color: #b3b3b3;">
+            <h3>Схоже, у нас ще немає залів</h3>
+            <p>Натисніть кнопку зверху, щоб побудувати перший.</p>
+        </div>
+    }
+</div>

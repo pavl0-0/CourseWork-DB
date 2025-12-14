@@ -1,0 +1,57 @@
+﻿@model Kino.ViewModels.SeatGeneratorViewModel
+
+@{
+    ViewData["Title"] = "Конструктор залу";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="cinema-form-card" style="border-color: #ffc107; max-width: 600px;">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #ffc107;">🪑 Конструктор місць</h2>
+
+        <div class="text-center mb-4">
+            <h4>@Model.HallName</h4>
+            <span class="badge bg-warning text-dark" style="font-size: 1rem;">Місткість: @Model.HallCapacity</span>
+        </div>
+
+        <form asp-action="GenerateSeats">
+            <input type="hidden" asp-for="HallId" />
+            <input type="hidden" asp-for="HallCapacity" />
+            <input type="hidden" asp-for="HallName" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-muted">Геометрія</h5>
+                    <div class="form-group">
+                        <label asp-for="SeatsPerRow" class="control-label">Місць у ряду</label>
+                        <input asp-for="SeatsPerRow" class="form-control" type="number" />
+                        <small class="text-muted">Кількість рядів порахується автоматично.</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-muted">Типи крісел</h5>
+
+                    <div class="form-group">
+                        <label asp-for="MainSeatTypeId" class="control-label">Основний тип</label>
+                        <select asp-for="MainSeatTypeId" asp-items="Model.SeatTypes" class="form-control"></select>
+                    </div>
+
+                    <div class="form-group" style="background: #333; padding: 10px; border-radius: 5px;">
+                        <label asp-for="VipSeatTypeId" class="control-label" style="color: gold;">VIP Тип (опціонально)</label>
+                        <select asp-for="VipSeatTypeId" asp-items="Model.SeatTypes" class="form-control">
+                            <option value="">-- Без VIP --</option>
+                        </select>
+
+                        <label asp-for="VipRowsCount" class="control-label mt-2" style="color: gold;">Скільки рядів з кінця?</label>
+                        <input asp-for="VipRowsCount" class="form-control" type="number" value="0" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px; text-align: center;">
+                <input type="submit" value="Перебудувати зал" class="btn-cinema" style="background-color: #ffc107; color: black;" />
+                <a asp-action="Index" class="btn-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>

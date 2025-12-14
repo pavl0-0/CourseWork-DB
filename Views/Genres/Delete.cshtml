@@ -1,0 +1,32 @@
+﻿@model Kino.Models.Genre
+
+@{
+    ViewData["Title"] = "Видалити";
+}
+
+<div class="container" style="margin-top: 50px;">
+
+    <div class="cinema-form-card" style="border-color: #e50914;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Видалення</h2>
+
+        <div style="text-align: center;">
+            <p class="delete-warning">Ви впевнені, що хочете видалити цей жанр?</p>
+
+            <h1 style="font-size: 3rem; margin: 20px 0;">@Model.Name</h1>
+
+            <p style="color: #b3b3b3; font-size: 0.9rem;">
+                Ця дія незворотна. Якщо у цього жанру є фільми, можуть виникнути помилки.
+            </p>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="GenreId" />
+
+                <div style="margin-top: 30px;">
+                    <input type="submit" value="Так, видалити" class="btn-cinema" style="background-color: darkred;" />
+                    <a asp-action="Index" class="btn-secondary">Скасувати</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>

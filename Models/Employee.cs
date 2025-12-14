@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kino.Models
 {
@@ -8,15 +7,24 @@ namespace Kino.Models
         [Key]
         public int EmployeeId { get; set; }
 
-        [Required][MaxLength(50)] public string FirstName { get; set; } = string.Empty;
-        [Required][MaxLength(50)] public string LastName { get; set; } = string.Empty;
-        [Required][MaxLength(50)] public string Position { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(50)]
+        public string FirstName { get; set; } = string.Empty;
 
-        [Column(TypeName = "decimal(10, 2)")]
-        public decimal Salary { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string LastName { get; set; } = string.Empty;
 
-        [EmailAddress] public string? Email { get; set; }
-        [Phone] public string? PhoneNumber { get; set; }
-        public DateTime HireDate { get; set; }
+        [Required]
+        [Phone]
+        [MaxLength(20)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
     }
 }

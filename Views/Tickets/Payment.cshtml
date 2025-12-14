@@ -1,0 +1,179 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Оплата";
+    string method = ViewBag.Method as string ?? "Card";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    @if (method == "ApplePay")
+    {
+        <div class="card shadow-lg" style="width: 380px; border-radius: 20px; background: #000; color: white; overflow: hidden;">
+            <div class="card-body text-center p-5 d-flex flex-column justify-content-between" style="height: 500px;">
+                <div class="mt-2">
+                    <h2 style="font-weight: bold;"> Pay</h2>
+                    <p class="text-muted small">Multiplex Cinema</p>
+                </div>
+
+                <div class="my-4">
+                    <div style="font-size: 4rem; animation: pulse 2s infinite;">📲</div>
+                    <p class="mt-3">Двічі натисніть бічну кнопку<br>для оплати</p>
+                </div>
+
+                <form asp-action="FinishPayment" method="post">
+                    <input type="hidden" name="bookingId" value="@Model" />
+                    <button type="submit" class="btn btn-light w-100 rounded-pill py-3 fw-bold">
+                        Підтвердити Face ID
+                    </button>
+                </form>
+
+                <a asp-action="CancelBooking" asp-route-bookingId="@Model" class="text-secondary mt-3 small text-decoration-none">Скасувати</a>
+            </div>
+        </div>
+    }
+
+    else if (method == "GooglePay")
+    {
+        <div class="card shadow-lg" style="width: 380px; border-radius: 20px; background: #fff; color: #3c4043; overflow: hidden;">
+            <div class="card-body text-center p-5 d-flex flex-column justify-content-between" style="height: 500px;">
+                <div class="mt-2">
+                    <div style="font-size: 2rem; font-weight: bold; color: #5f6368;">
+                        <span style="color:#4285F4">G</span> <span style="color:#EA4335">P</span><span style="color:#FBBC05">a</span><span style="color:#34A853">y</span>
+                    </div>
+                    <p class="text-muted small">Multiplex Cinema</p>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 bg-light text-start">
+                    <div class="d-flex align-items-center">
+                        <div style="font-size: 1.5rem; margin-right: 10px;">💳</div>
+                        <div>
+                            <div style="font-weight: bold;">Visa •••• 1234</div>
+                            <small class="text-muted">Монобанк</small>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="FinishPayment" method="post">
+                    <input type="hidden" name="bookingId" value="@Model" />
+                    <button type="submit" class="btn w-100 rounded-pill py-3 fw-bold text-white" style="background-color: #000;">
+                        Оплатити
+                    </button>
+                </form>
+
+                <a asp-action="CancelBooking" asp-route-bookingId="@Model" class="text-muted mt-3 small text-decoration-none">Скасувати</a>
+            </div>
+        </div>
+    }
+
+    else if (method == "PrivatPay")
+    {
+        <div class="card shadow-lg" style="width: 400px; border: 1px solid #ddd;">
+            <div class="card-header text-white text-center py-3" style="background-color: #80c342;">
+                <h4 class="m-0 fw-bold">Privat24</h4>
+            </div>
+            <div class="card-body p-4 bg-light">
+                <div class="text-center mb-4">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/PrivatBank_logo.svg" width="120" style="opacity: 0.8">
+                    <p class="mt-2 text-muted small">Безпечний вхід</p>
+                </div>
+
+                <form asp-action="FinishPayment" method="post">
+                    <input type="hidden" name="bookingId" value="@Model" />
+
+                    <input type="text" class="form-control mb-2 p-3" placeholder="+380" value="+380" />
+                    <input type="password" class="form-control mb-3 p-3" placeholder="Пароль" />
+
+                    <button type="submit" class="btn w-100 p-3 text-white fw-bold" style="background-color: #80c342;">
+                        Увійти
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a asp-action="CancelBooking" asp-route-bookingId="@Model" class="text-muted small">Повернутися назад</a>
+                </div>
+            </div>
+        </div>
+    }
+
+    else
+    {
+        <div class="cinema-form-card" style="max-width: 400px; width: 100%; border-color: #444;">
+            <div class="text-center mb-4">
+                <h3 class="text-white">Оплата карткою</h3>
+                <p class="text-muted small">Введіть дані картки</p>
+            </div>
+
+            <form asp-action="FinishPayment" method="post">
+                <input type="hidden" name="bookingId" value="@Model" />
+
+                <div class="mb-3">
+                    <label class="text-muted small">Номер картки</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-white">💳</span>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="0000 0000 0000 0000" maxlength="19" required />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="text-muted small">Термін</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="MM/YY" maxlength="5" required />
+                    </div>
+                    <div class="col-6">
+                        <label class="text-muted small">CVV</label>
+                        <input type="password" class="form-control bg-dark text-white border-secondary" placeholder="•••" maxlength="3" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-cinema w-100 mb-3" style="background-color: #28a745;">
+                    Оплатити
+                </button>
+            </form>
+
+            <div class="text-center">
+                <a asp-action="CancelBooking" asp-route-bookingId="@Model" class="text-muted small text-decoration-none">❌ Скасувати замовлення</a>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    @@keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    }
+</style>
+
+<script>
+    const bookingId = @Model;
+    let isPaymentSuccessful = false;
+
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            isPaymentSuccessful = true;
+        });
+    });
+
+    window.addEventListener('beforeunload', function (e) {
+        if (!isPaymentSuccessful) {
+            const formData = new FormData();
+            formData.append('bookingId', bookingId);
+            navigator.sendBeacon('/Tickets/CancelBookingAPI', formData);
+        }
+    });
+</script>

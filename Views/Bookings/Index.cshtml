@@ -1,0 +1,326 @@
+﻿@model IEnumerable<Kino.Models.Booking>
+
+@{
+    ViewData["Title"] = "Історія замовлень";
+}
+
+<style>
+    .cinema-table-container {
+        background-color: #161616;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #333;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .table.cinema-table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .cinema-table thead th {
+        background-color: #252525;
+        color: #999;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 18px 15px;
+        border-bottom: 2px solid #333;
+        vertical-align: middle;
+    }
+
+    .cinema-table tbody td {
+        background-color: transparent;
+        color: #fff;
+        padding: 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #2a2a2a;
+        font-size: 0.95rem;
+    }
+
+    .cinema-table tbody tr:hover td {
+        background-color: rgba(229, 9, 20, 0.05);
+        transition: background-color 0.2s ease;
+    }
+
+    .cinema-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .custom-check {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #e50914;
+        vertical-align: middle;
+    }
+
+    .id-badge {
+        font-family: monospace;
+        color: #777;
+    }
+
+    .user-email {
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    #bulkActions {
+        display: none;
+        background-color: #e50914;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        animation: slideDown 0.3s ease-out;
+        box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+    .custom-modal-box {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 30px;
+        width: 400px;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        transform: scale(0.8);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.show .custom-modal-box {
+        transform: scale(1);
+    }
+
+    .modal-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .modal-title {
+        color: white;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .modal-text {
+        color: #b3b3b3;
+        margin-bottom: 25px;
+        font-size: 0.95rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn-modal-cancel {
+        background: transparent;
+        border: 1px solid #555;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-modal-cancel:hover {
+            background: #333;
+        }
+
+    .btn-modal-confirm {
+        background: #e50914;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: bold;
+    }
+
+        .btn-modal-confirm:hover {
+            background: #ff0a1b;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+        }
+</style>
+
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title text-white">💰 Продажі квитків</h1>
+        <div class="text-muted">Всього замовлень: <span class="text-white fw-bold">@Model.Count()</span></div>
+    </div>
+
+    <form asp-action="DeleteBatch" method="post" id="batchForm">
+
+        <div id="bulkActions">
+            <span style="font-weight: bold;">Обрано: <span id="selectedCount">0</span></span>
+            <div style="flex-grow: 1;"></div> <button type="button" class="btn btn-sm btn-light text-danger fw-bold shadow-sm" onclick="showDeleteModal()">
+                🗑️ Видалити обрані
+            </button>
+        </div>
+
+        <div class="cinema-table-container">
+            <table class="table cinema-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align: center;">
+                            <input type="checkbox" id="selectAll" class="custom-check" onclick="toggleAll(this)" />
+                        </th>
+                        <th>ID</th>
+                        <th>Дата</th>
+                        <th>Клієнт</th>
+                        <th>Статус</th>
+                        <th class="text-end">Сума</th>
+                        <th class="text-center">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="checkbox" name="ids" value="@item.BookingId" class="custom-check item-check" onchange="updateCounter()" />
+                            </td>
+                            <td>
+                                <span class="id-badge">#@item.BookingId</span>
+                            </td>
+                            <td>
+                                <div>@item.BookingTime.ToString("dd.MM.yyyy")</div>
+                                <small class="text-muted">@item.BookingTime.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                @if (item.Client != null)
+                                {
+                                    <div class="fw-bold">@item.Client.FirstName @item.Client.LastName</div>
+                                    <div class="user-email">@item.Client.Email</div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted fst-italic">Користувача видалено</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Status == "Paid")
+                                {
+                                    <span class="badge bg-success bg-opacity-75">Оплачено</span>
+                                }
+                                else if (item.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">Очікує</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@item.Status</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <span style="font-weight: bold; color: #e50914; font-size: 1.1em;">
+                                    @item.TotalAmount.ToString("0.00") <small>грн</small>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.BookingId" class="btn btn-sm btn-outline-secondary text-white border-0" title="Деталі">
+                                    ℹ️ Info
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="custom-modal-box">
+        <span class="modal-icon">🗑️</span>
+        <h3 class="modal-title">Видалити замовлення?</h3>
+        <p class="modal-text">
+            Ви збираєтесь видалити <strong id="modalCount" style="color: white;">0</strong> замовлень.
+            <br>Цю дію неможливо скасувати.
+        </p>
+        <div class="modal-buttons">
+            <button class="btn-modal-cancel" onclick="closeDeleteModal()">Скасувати</button>
+            <button class="btn-modal-confirm" onclick="confirmDelete()">Так, видалити</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAll(source) {
+        let checkboxes = document.querySelectorAll('.item-check');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+        updateCounter();
+    }
+
+    function updateCounter() {
+        let checkedCount = document.querySelectorAll('.item-check:checked').length;
+        document.getElementById('selectedCount').innerText = checkedCount;
+        let bulkPanel = document.getElementById('bulkActions');
+        bulkPanel.style.display = checkedCount > 0 ? 'flex' : 'none';
+    }
+
+    function showDeleteModal() {
+        let count = document.querySelectorAll('.item-check:checked').length;
+        if (count === 0) return;
+        document.getElementById('modalCount').innerText = count;
+        let modal = document.getElementById('deleteModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function closeDeleteModal() {
+        let modal = document.getElementById('deleteModal');
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+
+    function confirmDelete() {
+        document.getElementById('batchForm').submit();
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>

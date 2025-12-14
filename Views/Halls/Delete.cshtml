@@ -1,0 +1,32 @@
+﻿@model Kino.Models.Hall
+
+@{
+    ViewData["Title"] = "Видалити зал";
+}
+
+<div class="container" style="margin-top: 50px;">
+
+    <div class="cinema-form-card" style="border-color: #e50914;">
+        <h2 style="text-align: center; margin-bottom: 20px;">Видалення залу</h2>
+
+        <div style="text-align: center;">
+            <p class="delete-warning">Ви впевнені? Це видалить також всі МІСЦЯ в цьому залі!</p>
+
+            <h1 style="font-size: 3rem; margin: 20px 0;">Зал №@Model.HallNumber</h1>
+
+            <p style="color: #b3b3b3; font-size: 0.9rem;">
+                Місць: @Model.SeatCapacity
+            </p>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="HallId" />
+
+                <div style="margin-top: 30px;">
+                    <input type="submit" value="Так, знищити зал" class="btn-cinema" style="background-color: darkred;" />
+                    <a asp-action="Index" class="btn-secondary">Скасувати</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>

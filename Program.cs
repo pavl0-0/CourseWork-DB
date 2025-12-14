@@ -1,5 +1,6 @@
 using Kino.Data;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 
 namespace Kino
 {
@@ -8,6 +9,17 @@ namespace Kino
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            QuestPDF.Settings.License = LicenseType.Community;
 
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -28,6 +40,8 @@ namespace Kino
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 

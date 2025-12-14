@@ -1,8 +1,412 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Kino.ViewModels.MovieShowtimeViewModel>
+
+@{
+    ViewData["Title"] = "Афіша";
+    bool hasFilters = !string.IsNullOrEmpty(ViewBag.SearchQuery as string)
+                      || ViewBag.AgeRating != null
+                      || ViewBag.MaxPrice != null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    @@keyframes highlightPulse {
+        0% {
+            background-color: rgba(229, 9, 20, 0.4);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
+            transform: scale(1.02);
+            border-radius: 10px;
+            z-index: 10;
+            position: relative;
+        }
+
+        70% {
+            background-color: rgba(229, 9, 20, 0.1);
+        }
+
+        100% {
+            background-color: transparent;
+            transform: scale(1);
+        }
+    }
+
+    .found-item {
+        animation: highlightPulse 2s ease-out forwards;
+    }
+
+    .dimmed-item {
+        opacity: 0.2;
+        filter: grayscale(1);
+        transition: all 0.5s ease;
+        transform: scale(0.98);
+    }
+
+        .dimmed-item:hover {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1);
+        }
+
+    .custom-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+        .custom-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+    .custom-modal-box {
+        background: #161616;
+        border: 1px solid #333;
+        border-radius: 16px;
+        padding: 0;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 20px 60px rgba(229, 9, 20, 0.15);
+        transform: scale(0.8);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .custom-modal-overlay.show .custom-modal-box {
+        transform: scale(1);
+    }
+
+    .modal-header-custom {
+        background: linear-gradient(180deg, rgba(229,9,20,0.1) 0%, rgba(22,22,22,0) 100%);
+        padding: 25px 30px 10px;
+        text-align: center;
+    }
+
+    .modal-icon-large {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        display: block;
+        text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .modal-body-custom {
+        padding: 10px 30px 25px;
+        text-align: center;
+        color: #ccc;
+    }
+
+    .ticket-info-row {
+        background: #222;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        border: 1px dashed #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ticket-label {
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+    }
+
+    .ticket-value {
+        font-size: 1.1rem;
+        color: white;
+        font-weight: bold;
+    }
+
+    .modal-footer-custom {
+        padding: 20px;
+        background: #111;
+        display: flex;
+        gap: 15px;
+        border-top: 1px solid #222;
+    }
+
+    .btn-modal-cancel {
+        flex: 1;
+        background: transparent;
+        border: 1px solid #444;
+        color: #aaa;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-modal-cancel:hover {
+            background: #222;
+            color: white;
+        }
+
+    .btn-modal-confirm {
+        flex: 1;
+        background: #e50914;
+        border: none;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+        transition: 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-modal-confirm:hover {
+            background: #ff0f1f;
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6);
+            color: white;
+        }
+</style>
+
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+        <h1 class="page-title">Сьогодні в кіно</h1>
+        <div style="color: #b3b3b3; font-size: 1.2rem;">
+            @DateTime.Today.ToString("dd MMMM, dddd")
+        </div>
+    </div>
+
+    <form method="get" asp-action="Index" class="mb-5 mt-4">
+        <div class="row g-2 align-items-end" style="background: #1e1e1e; padding: 20px; border-radius: 12px; border: 1px solid #333;">
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Пошук</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-white">🔍</span>
+                    <input type="text" name="searchQuery" value="@ViewBag.SearchQuery"
+                           class="form-control bg-dark text-white border-secondary"
+                           placeholder="Назва..." />
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted small">Дата</label>
+                <input type="date" name="date" value="@ViewBag.SelectedDate"
+                       class="form-control bg-dark text-white border-secondary" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted small">Рейтинг</label>
+                <select name="ageRating" class="form-select bg-dark text-white border-secondary">
+                    <option value="">Всі вікові</option>
+                    <!option value="0" @(ViewBag.AgeRating == 0 ? "selected" : "")>0+</!option>
+                    <!option value="6" @(ViewBag.AgeRating == 6 ? "selected" : "")>6+</!option>
+                    <!option value="12" @(ViewBag.AgeRating == 12 ? "selected" : "")>12+</!option>
+                    <!option value="16" @(ViewBag.AgeRating == 16 ? "selected" : "")>16+</!option>
+                    <!option value="18" @(ViewBag.AgeRating == 18 ? "selected" : "")>18+</!option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted small">Ціна до (грн)</label>
+                <input type="number" name="maxPrice" value="@ViewBag.MaxPrice"
+                       class="form-control bg-dark text-white border-secondary"
+                       placeholder="∞" min="0" step="10" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-muted small">Сортування</label>
+                <select name="sortOrder" class="form-select bg-dark text-white border-secondary">
+                    <!option value="time" @(ViewBag.SortOrder == "time" ? "selected" : "")>⏰ Найближчі</!option>
+                    <!option value="newest" @(ViewBag.SortOrder == "newest" ? "selected" : "")>🔥 Новинки</!option>
+                    <!option value="title" @(ViewBag.SortOrder == "title" ? "selected" : "")>🅰️ За назвою</!option>
+                    <!option value="price_asc" @(ViewBag.SortOrder == "price_asc" ? "selected" : "")>💲 Дешеві</!option>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-cinema w-100" style="height: 38px; margin-top: 28px;">OK</button>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5" style="margin-top: 30px;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🕵️‍♂️</div>
+            <h3 class="text-muted">На обрану дату сеансів немає</h3>
+            @if (hasFilters)
+            {
+                <a asp-action="Index" class="btn btn-outline-danger mt-2">Скинути фільтри</a>
+            }
+        </div>
+    }
+
+    <div class="schedule-list">
+        @foreach (var movie in Model)
+        {
+            string rowClass = "";
+            if (movie.IsHighlighted)
+            {
+                rowClass = "found-item";
+            }
+            else if (hasFilters)
+            {
+                rowClass = "dimmed-item";
+            }
+
+            <div class="movie-row @rowClass">
+                <div class="movie-poster-container">
+                    @if (!string.IsNullOrEmpty(movie.PosterUrl))
+                    {
+                        <img src="~/images/posters/@movie.PosterUrl" class="movie-poster-img" />
+                    }
+                    else
+                    {
+                        <div style="width:100%; height:100%; background:#333; display:flex; align-items:center; justify-content:center;">🎬</div>
+                    }
+                </div>
+
+                <div class="movie-info-container">
+                    <div class="d-flex align-items-center gap-2">
+                        <h2>
+                            <a asp-controller="Films" asp-action="Details" asp-route-id="@movie.FilmId" class="movie-title">
+                                @movie.Title
+                            </a>
+                        </h2>
+                        @if (movie.AgeRating > 0)
+                        {
+                            <span class="badge border border-secondary text-secondary" style="font-size: 0.8rem;">
+                                @movie.AgeRating+
+                            </span>
+                        }
+                    </div>
+
+                    <div class="movie-meta">
+                        <span>@movie.Genre</span> |
+                        <span>⏳ @movie.Duration хв</span>
+                    </div>
+
+                    <div class="movie-crew mb-3 small">
+                        @if (movie.Crew != null && movie.Crew.Any())
+                        {
+                            var director = movie.Crew.FirstOrDefault(c => c.Role.Contains("Режисер"));
+                            var actors = movie.Crew.Where(c => !c.Role.Contains("Режисер")).Take(3).ToList();
+
+                            if (director != null)
+                            {
+                                <div style="color: #aaa;">🎬 Режисер: <span class="text-white">@director.Name</span></div>
+                            }
+                        }
+                    </div>
+
+                    @if (movie.Sessions.Any())
+                    {
+                        <div class="sessions-grid">
+                            @foreach (var session in movie.Sessions)
+                            {
+                                <a href="javascript:void(0)"
+                                   onclick="openModal('@movie.Title.Replace("'", "\\'")', '@session.Time', '@session.HallName', '@session.Price', @session.SessionId)"
+                                   class="time-btn">
+
+                                    <span class="time-val">@session.Time</span>
+                                    <span class="tech-val">@session.HallName</span>
+                                    <span class="price-val" style="@(ViewBag.MaxPrice != null && session.Price <= ViewBag.MaxPrice ? "color: #4caf50;" : "")">
+                                        @session.Price грн
+                                    </span>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small mt-3 p-2 rounded" style="background: rgba(255,255,255,0.05); border: 1px dashed #444;">
+                            📅 Немає сеансів
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div id="bookingModal" class="custom-modal-overlay" onclick="closeModal(event)">
+        <div class="custom-modal-box">
+
+            <div class="modal-header-custom">
+                <span class="modal-icon-large">🎟️</span>
+                <h3 class="text-white mb-1" id="modalTitle">Бронювання</h3>
+                <p class="small text-muted" id="modalSubtitle">Перевірте дані перед покупкою</p>
+            </div>
+
+            <div class="modal-body-custom">
+                <div class="ticket-info-row">
+                    <div class="text-start">
+                        <div class="ticket-label">Фільм</div>
+                        <div class="ticket-value" id="modalFilmName">Назва фільму</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <div class="ticket-info-row w-100 flex-column align-items-start">
+                        <div class="ticket-label">Час</div>
+                        <div class="ticket-value" id="modalTime">00:00</div>
+                    </div>
+                    <div class="ticket-info-row w-100 flex-column align-items-start">
+                        <div class="ticket-label">Зал</div>
+                        <div class="ticket-value" id="modalHall">IMAX</div>
+                    </div>
+                    <div class="ticket-info-row w-100 flex-column align-items-start">
+                        <div class="ticket-label">Ціна</div>
+                        <div class="ticket-value text-success" id="modalPrice">0 грн</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-custom">
+                <button class="btn-modal-cancel" onclick="closeModalDirect()">Скасувати</button>
+                <a href="#" id="modalConfirmBtn" class="btn-modal-confirm">
+                    Купити квиток
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openModal(filmTitle, time, hall, price, sessionId) {
+            document.getElementById('modalFilmName').innerText = filmTitle;
+            document.getElementById('modalTime').innerText = time;
+            document.getElementById('modalHall').innerText = hall;
+            document.getElementById('modalPrice').innerText = price + ' грн';
+
+            document.getElementById('modalConfirmBtn').href = '/Tickets/Book/' + sessionId;
+
+            let modal = document.getElementById('bookingModal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 10);
+        }
+
+        function closeModalDirect() {
+            let modal = document.getElementById('bookingModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'bookingModal') {
+                closeModalDirect();
+            }
+        }
+    </script>
 </div>

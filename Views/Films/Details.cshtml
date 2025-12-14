@@ -1,0 +1,190 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model Kino.Models.Film
+@functions {
+    public string GetEmbedUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return "";
+
+        string videoId = "";
+
+        if (url.Contains("youtube.com/watch?v="))
+        {
+            videoId = url.Split("v=")[1];
+            int ampersandIndex = videoId.IndexOf('&');
+            if (ampersandIndex != -1)
+            {
+                videoId = videoId.Substring(0, ampersandIndex);
+            }
+        }
+        else if (url.Contains("youtu.be/"))
+        {
+            videoId = url.Split("youtu.be/")[1];
+            int questionMarkIndex = videoId.IndexOf('?');
+            if (questionMarkIndex != -1)
+            {
+                videoId = videoId.Substring(0, questionMarkIndex);
+            }
+        }
+        else if (url.Contains("youtube.com/embed/"))
+        {
+            return url;
+        }
+
+        return !string.IsNullOrEmpty(videoId) ? $"https://www.youtube.com/embed/{videoId}" : url;
+    }
+}
+@{
+    ViewData["Title"] = Model.TitleUkrainian;
+    var userType = HttpContextAccessor.HttpContext.Session.GetString("UserType");
+}
+
+<div class="container mt-4">
+    <div class="cinema-form-card" style="max-width: 900px; margin: 0 auto; padding: 0; overflow: hidden;">
+
+        <div class="row g-0">
+            <div class="col-md-4">
+                @if (!string.IsNullOrEmpty(Model.PosterUrl))
+                {
+                    <img src="~/images/posters/@Model.PosterUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                }
+                else
+                {
+                    <div style="width:100%; height:400px; background:#333; display:flex; align-items:center; justify-content:center; color:#555;">
+                        🎬 Немає постера
+                    </div>
+                }
+            </div>
+
+            <div class="col-md-8 p-4">
+                <h1 class="mb-1" style="color: #e50914; font-weight: bold;">@Model.TitleUkrainian</h1>
+                <h4 class="text-muted mb-3">@Model.TitleOriginal</h4>
+
+                <div class="mb-3">
+                    <span class="badge bg-danger me-2">@Model.AgeRating+</span>
+                    <span class="badge bg-secondary me-2">@Model.DurationMinutes хв</span>
+                    <span class="badge bg-secondary">@Model.ReleaseDate.Year</span>
+                </div>
+
+                <p>
+                    <strong>Жанри:</strong>
+                    @string.Join(", ", Model.FilmGenres.Select(g => g.Genre.Name))
+                </p>
+
+                <p>
+                    <strong>Країни:</strong>
+                    @string.Join(", ", Model.FilmCountries.Select(c => c.Country.Name))
+                </p>
+
+                @if (Model.FilmCrew != null && Model.FilmCrew.Any())
+                {
+                    <div class="mt-4 p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                        <h5 class="text-white mb-3" style="border-bottom: 1px solid #444; padding-bottom: 5px;">🎭 Знімальна група</h5>
+
+                        @{
+                            var directors = Model.FilmCrew.Where(c => c.Role.RoleName.Contains("Режисер")).ToList();
+                            var actors = Model.FilmCrew.Where(c => !c.Role.RoleName.Contains("Режисер")).ToList();
+                        }
+
+                        @if (directors.Any())
+                        {
+                            <p class="mb-2">
+                                <span class="text-muted">Режисер:</span>
+                                <strong class="text-white">@string.Join(", ", directors.Select(d => d.Person.FullName))</strong>
+                            </p>
+                        }
+
+                        @if (actors.Any())
+                        {
+                            <p class="mb-0">
+                                <span class="text-muted">У ролях:</span>
+                                <span class="text-white">
+                                    @string.Join(", ", actors.Select(a => a.Person.FullName))
+                                </span>
+                            </p>
+                        }
+                    </div>
+                }
+                <div class="mt-4 p-3 bg-dark rounded border border-secondary">
+                    <h5 class="text-white">Про фільм:</h5>
+                    <p class="text-muted m-0">@Model.Description</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="mt-4 p-4 rounded" style="background: #151515; border: 1px solid #333;">
+            <h4 class="text-white mb-3">📅 Найближчі сеанси</h4>
+
+            @{
+                var futureSessions = Model.Sessions
+                .Where(s => s.StartTime > DateTime.Now)
+                .OrderBy(s => s.StartTime)
+                .Take(10)
+                .ToList();
+            }
+
+            @if (futureSessions.Any())
+            {
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach (var session in futureSessions)
+                    {
+                        <a asp-controller="Tickets" asp-action="Book" asp-route-id="@session.SessionId"
+                           class="btn btn-outline-light d-flex flex-column align-items-center justify-content-center p-2"
+                           style="min-width: 100px; border-color: #555;">
+
+                            <span style="font-size: 1.2rem; font-weight: bold; color: #e50914;">
+                                @session.StartTime.ToString("HH:mm")
+                            </span>
+                            <span style="font-size: 0.8rem; color: #aaa;">
+                                @session.StartTime.ToString("dd.MM")
+                            </span>
+                            <div class="d-flex gap-2 small mt-1">
+                                <span class="badge bg-secondary">@session.Hall.ScreenType</span>
+                                <span class="badge bg-dark">@session.BaseTicketPrice ₴</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">На жаль, активних сеансів на цей фільм поки немає.</p>
+            }
+        </div>
+
+
+        @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+        {
+            <div class="p-4 border-top border-secondary">
+                <h4 class="mb-3">Трейлер</h4>
+                <div class="ratio ratio-16x9">
+                    <iframe src="@GetEmbedUrl(Model.TrailerUrl)"
+                            title="YouTube video player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        }
+
+<div class="p-3 bg-dark d-flex justify-content-between align-items-center">
+            
+            <div>
+                
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">← На головну</a>
+
+            </div>
+
+            @if (userType == "Admin")
+            {
+                <div>
+                    <a asp-action="ManageCrew" asp-route-id="@Model.FilmId" class="btn btn-warning me-2">👥 Актори</a>
+                    <a asp-action="Edit" asp-route-id="@Model.FilmId" class="btn btn-danger">✏️ Редагувати</a>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

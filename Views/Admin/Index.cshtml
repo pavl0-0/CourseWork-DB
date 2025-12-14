@@ -1,0 +1,385 @@
+﻿@using Kino.ViewModels
+
+@{
+    ViewData["Title"] = "Адмін-панель";
+    var stats = ViewBag.Stats as Kino.ViewModels.AdminStatsViewModel;
+}
+
+<style>
+    /* --- Основні картки меню --- */
+    .admin-card {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(229, 9, 20, 0.2);
+        border-color: #e50914;
+    }
+    .admin-card::before {
+        content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        background: #e50914; opacity: 0; transition: opacity 0.2s;
+    }
+    .admin-card:hover::before { opacity: 1; }
+    .admin-icon { font-size: 2.5rem; margin-bottom: 15px; }
+    .admin-title { color: white; font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+    .admin-desc { color: #888; font-size: 0.85rem; }
+
+    .stat-box {
+        background: linear-gradient(135deg, #161616, #1e1e1e);
+        border-radius: 12px;
+        padding: 20px;
+        border-left: 4px solid #e50914;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .stat-num { font-size: 1.8rem; font-weight: bold; color: white; }
+    .stat-label { color: #aaa; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    .filter-panel {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .custom-date-input {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 6px;
+        padding: 10px;
+    }
+    
+    .custom-date-input:focus {
+        background-color: #333;
+        border-color: #e50914;
+        color: #fff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+    }
+
+    ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+
+    .chart-card {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 20px;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .chart-header {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+    }
+</style>
+
+<div class="container mt-4 pb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title m-0 text-white">🛠 Панель керування</h1>
+        <div class="text-white">
+            Вітаємо, <span style="color: #e50914; font-weight: bold;">@Context.Session.GetString("UserName")</span>!
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-num">@ViewBag.TodaySales.ToString("0") ₴</div>
+                <div class="stat-label">Каса сьогодні</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-num">@ViewBag.SessionsCount</div>
+                <div class="stat-label">Активних сеансів</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-num">@ViewBag.FilmsCount</div>
+                <div class="stat-label">Фільмів</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-box">
+                <div class="stat-num">@ViewBag.ClientsCount</div>
+                <div class="stat-label">Клієнтів</div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="text-white mb-3 ps-1">Основні модулі</h4>
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Bookings" asp-action="Index" class="admin-card">
+                <div class="admin-icon">💰</div>
+                <div class="admin-title">Продажі</div>
+                <div class="admin-desc">Замовлення та каса</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Sessions" asp-action="Index" class="admin-card">
+                <div class="admin-icon">📅</div>
+                <div class="admin-title">Розклад</div>
+                <div class="admin-desc">Керування сеансами</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Films" asp-action="Index" class="admin-card">
+                <div class="admin-icon">🎬</div>
+                <div class="admin-title">Фільми</div>
+                <div class="admin-desc">Постери, трейлери</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Halls" asp-action="Index" class="admin-card">
+                <div class="admin-icon">🏛</div>
+                <div class="admin-title">Зали</div>
+                <div class="admin-desc">Схема місць</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Clients" asp-action="Index" class="admin-card">
+                <div class="admin-icon">👥</div>
+                <div class="admin-title">Клієнти</div>
+                <div class="admin-desc">База користувачів</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="Employees" asp-action="Index" class="admin-card">
+                <div class="admin-icon">👔</div>
+                <div class="admin-title">Персонал</div>
+                <div class="admin-desc">Адміністратори</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a asp-controller="People" asp-action="Index" class="admin-card">
+                <div class="admin-icon">🎭</div>
+                <div class="admin-title">Персони</div>
+                <div class="admin-desc">Актори та режисери</div>
+            </a>
+        </div>
+    </div>
+
+    <h4 class="text-white mb-3 ps-1 border-top border-secondary pt-4">Довідники та налаштування</h4>
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <a asp-controller="Genres" asp-action="Index" class="admin-card">
+                <div class="admin-icon">🏷️</div>
+                <div class="admin-title">Жанри</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="Countries" asp-action="Index" class="admin-card">
+                <div class="admin-icon">🌍</div>
+                <div class="admin-title">Країни</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="Roles" asp-action="Index" class="admin-card">
+                <div class="admin-icon">📝</div>
+                <div class="admin-title">Ролі</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <a asp-controller="SeatTypes" asp-action="Index" class="admin-card">
+                <div class="admin-icon">💺</div>
+                <div class="admin-title">Типи місць</div>
+            </a>
+        </div>
+    </div>
+
+    <h4 class="text-white mb-3 ps-1 border-top border-secondary pt-4">Аналітика та звіти</h4>
+
+    <div class="filter-panel">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="text-muted small mb-1">Початкова дата</label>
+                <input type="date" name="startDate" value="@stats.StartDate.ToString("yyyy-MM-dd")" class="form-control custom-date-input w-100">
+            </div>
+            <div class="col-md-5">
+                <label class="text-muted small mb-1">Кінцева дата</label>
+                <input type="date" name="endDate" value="@stats.EndDate.ToString("yyyy-MM-dd")" class="form-control custom-date-input w-100">
+            </div>
+            <div class="col-md-2">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning w-100 fw-bold" style="padding: 10px;">Фільтр</button>
+                    <a asp-action="DownloadReport" 
+                       asp-route-startDate="@stats.StartDate.ToString("yyyy-MM-dd")" 
+                       asp-route-endDate="@stats.EndDate.ToString("yyyy-MM-dd")" 
+                       class="btn btn-danger d-flex align-items-center justify-content-center" 
+                       style="width: 50px;"
+                       title="Завантажити PDF">📄</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (stats != null)
+    {
+        <div class="row g-4">
+            
+            <div class="col-md-8">
+                <div class="chart-card">
+                    <div class="chart-header text-success">💰 Динаміка виручки</div>
+                    <canvas id="revenueChart" style="max-height: 300px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="chart-card">
+                    <div class="chart-header text-info">🎭 Жанри (гроші)</div>
+                    <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="genresChart" style="max-height: 250px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-header text-warning">🎬 Топ фільмів (квитки)</div>
+                    <canvas id="filmsChart" style="max-height: 300px; width: 100%;"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-header text-primary">👑 VIP Клієнти</div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" style="background: transparent;">
+                            <thead>
+                                <tr>
+                                    <th class="text-secondary">Клієнт</th>
+                                    <th class="text-end text-secondary">Витрачено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var client in stats.TopClients)
+                                {
+                                    <tr>
+                                        <td>@client.Name</td>
+                                        <td class="text-end text-success fw-bold">@client.TotalSpent.ToString("N0") ₴</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.color = '#888';
+    Chart.defaults.borderColor = '#333';
+    Chart.defaults.font.family = "'Segoe UI', 'Helvetica', sans-serif";
+
+    const revenueCtx = document.getElementById('revenueChart');
+    if(revenueCtx) {
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(stats.RevenueStats.Select(x => x.Date.ToString("dd.MM")))),
+                datasets: [{
+                    label: 'Виручка (грн)',
+                    data: @Html.Raw(Json.Serialize(stats.RevenueStats.Select(x => x.TotalAmount))),
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2ecc71',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: '#333' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    const genresCtx = document.getElementById('genresChart');
+    if(genresCtx) {
+        new Chart(genresCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(stats.TopGenres.Select(x => x.GenreName))),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(stats.TopGenres.Select(x => x.TotalRevenue))),
+                    backgroundColor: ['#e50914', '#564d4d', '#831010', '#db0000', '#ffffff'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'right', labels: { boxWidth: 12 } } 
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    const filmsCtx = document.getElementById('filmsChart');
+    if(filmsCtx) {
+        new Chart(filmsCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(stats.TopFilms.Select(x => x.Title))),
+                datasets: [{
+                    label: 'Продано квитків',
+                    data: @Html.Raw(Json.Serialize(stats.TopFilms.Select(x => x.TicketsSold))),
+                    backgroundColor: '#e50914',
+                    borderRadius: 4
+                }]
+            },
+            options: { 
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#333' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+</script>

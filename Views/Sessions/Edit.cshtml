@@ -1,0 +1,44 @@
+﻿@model Kino.Models.Session
+
+@{
+    ViewData["Title"] = "Редагування сеансу";
+}
+
+<div class="container" style="margin-top: 50px;">
+
+    <div class="cinema-form-card">
+        <h2 style="text-align: center; margin-bottom: 30px;">Змінити розклад</h2>
+
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="SessionId" />
+
+            <div class="form-group">
+                <label asp-for="FilmId" class="control-label">Фільм</label>
+                <select asp-for="FilmId" class="form-control" asp-items="ViewBag.FilmId"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="HallId" class="control-label">Зал</label>
+                <select asp-for="HallId" class="form-control" asp-items="ViewBag.HallId"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StartTime" class="control-label">Час початку</label>
+                <input asp-for="StartTime" class="form-control" />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="BaseTicketPrice" class="control-label">Ціна (грн)</label>
+                <input asp-for="BaseTicketPrice" class="form-control" type="number" />
+                <span asp-validation-for="BaseTicketPrice" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px; text-align: center;">
+                <input type="submit" value="Зберегти" class="btn-cinema" />
+                <a asp-action="Index" class="btn-secondary">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>

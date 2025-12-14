@@ -1,0 +1,51 @@
+﻿@model Kino.ViewModels.SessionGeneratorViewModel
+
+@{
+    ViewData["Title"] = "Генератор розкладу";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="cinema-form-card" style="border-color: #28a745; max-width: 800px;">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #28a745;">Генератор Сеансів</h2>
+        <p class="text-center text-muted">Обери фільм, зал і дати. Система сама створить сеанси на кожен день.</p>
+
+        <form asp-action="Generate">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FilmId" class="control-label">Фільм</label>
+                        <select asp-for="FilmId" asp-items="Model.Films" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="HallIds" class="control-label">Зали (Затисни Ctrl для вибору кількох)</label>
+                        <select asp-for="HallIds" asp-items="Model.Halls" class="form-control" multiple style="height: 100px; background-color: #2b2b2b; color: white;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Price" class="control-label">Ціна квитка (грн)</label>
+                        <input asp-for="Price" class="form-control" type="number" value="150" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="DateFrom" class="control-label">З дати</label>
+                        <input asp-for="DateFrom" class="form-control" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DateTo" class="control-label">По дату</label>
+                        <input asp-for="DateTo" class="form-control" type="date" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Times" class="control-label">Час сеансів (через кому)</label>
+                        <input asp-for="Times" class="form-control" value="10:00, 14:00, 18:00, 21:00" />
+                        <small class="text-muted">Наприклад: 10:00, 12:30, 20:00</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px; text-align: center;">
+                <input type="submit" value="Згенерувати розклад" class="btn-cinema" style="background-color: #28a745;" />
+                <a asp-action="Index" class="btn-secondary">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>

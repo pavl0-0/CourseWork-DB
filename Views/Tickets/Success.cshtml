@@ -1,0 +1,35 @@
+﻿@model int // Тут приходить ID бронювання
+
+@{
+    ViewData["Title"] = "Успішна покупка";
+}
+
+<div class="container text-center" style="margin-top: 80px;">
+
+    <div class="cinema-form-card" style="display: inline-block; max-width: 600px; border-color: #28a745; padding: 40px;">
+
+        <div style="font-size: 5rem; margin-bottom: 20px;">✅</div>
+
+        <h1 style="color: #28a745; font-weight: bold;">Оплата успішна!</h1>
+
+        <p style="font-size: 1.2rem; margin-top: 20px; color: white;">
+            Дякуємо за покупку! Ваше бронювання <strong>#@Model</strong> підтверджено.
+        </p>
+
+        <div class="alert alert-success" style="background-color: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; color: #fff;">
+            📩 <strong>Перевірте вашу пошту!</strong><br />
+            Ми відправили вам лист із вкладеним <strong>PDF-квитком</strong> та QR-кодом.
+        </div>
+
+        <p class="text-muted small">
+            Якщо листа немає у "Вхідних", перевірте папку "Спам".
+        </p>
+
+        <hr style="border-color: #444; margin: 30px 0;">
+
+        <a asp-controller="Home" asp-action="Index" class="btn-cinema">
+            Повернутися на головну
+        </a>
+
+    </div>
+</div>

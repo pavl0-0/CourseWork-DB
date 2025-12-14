@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Kino.Models.Genre>
+
+@{
+    ViewData["Title"] = "Жанри";
+}
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">🎬 Жанри кіно</h1>
+        <a asp-action="Create" class="btn-cinema">+ Додати жанр</a>
+    </div>
+
+    <div class="cinema-grid">
+        @foreach (var item in Model)
+        {
+            <div class="genre-card">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🎞️</div>
+
+                <span class="genre-name">@item.Name</span>
+
+                <div class="card-actions">
+                    <a asp-action="Edit" asp-route-id="@item.GenreId">Редагувати</a> |
+                    <a asp-action="Details" asp-route-id="@item.GenreId">Деталі</a> |
+                    <a asp-action="Delete" asp-route-id="@item.GenreId" class="delete-link">Видалити</a>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align: center; margin-top: 50px; color: #b3b3b3;">
+            <h3>Поки що немає жодного жанру</h3>
+            <p>Натисніть кнопку зверху, щоб додати.</p>
+        </div>
+    }
+</div>

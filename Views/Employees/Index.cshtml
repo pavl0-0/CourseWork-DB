@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Kino.Models.Employee>
+
+@{
+    ViewData["Title"] = "Співробітники";
+}
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Персонал</h1>
+        <a asp-action="Create" class="btn-cinema">Додати співробітника</a>
+    </div>
+
+    <div class="cinema-grid">
+        @foreach (var item in Model)
+        {
+            <div class="genre-card">
+                <div style="font-size: 2rem; margin-bottom: 5px;"></div>
+
+                <span class="genre-name">@item.FirstName @item.LastName</span>
+
+                <p style="color: #b3b3b3; font-size: 0.9rem; margin-top: 10px;">
+                    📧 @item.Email <br />
+                    📞 @item.PhoneNumber
+                </p>
+
+                <div class="card-actions" style="margin-top: 15px;">
+                    <a asp-action="Edit" asp-route-id="@item.EmployeeId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.EmployeeId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.EmployeeId" class="delete-link">Delete</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

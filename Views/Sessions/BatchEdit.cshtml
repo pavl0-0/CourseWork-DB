@@ -1,0 +1,71 @@
+﻿@model Kino.ViewModels.SessionBatchEditViewModel
+
+@{
+    ViewData["Title"] = "Масове редагування";
+}
+
+<div class="container mt-5">
+    <div class="cinema-form-card">
+        <h2 class="text-center mb-4 text-warning">✏️ Масове редагування сеансів</h2>
+
+        <div class="alert alert-secondary text-center">
+            <small>Виберіть критерії пошуку (кого змінити) та введіть нові значення (на що змінити).</small>
+        </div>
+
+        <form asp-action="BatchEdit">
+            <div class="row">
+                <div class="col-md-6 border-end border-secondary">
+                    <h5 class="text-white mb-3">1. Критерії вибору</h5>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="FilterFilmId" class="control-label text-muted">Фільм (всі, якщо пусте)</label>
+                        <select asp-for="FilterFilmId" class="form-control bg-dark text-white" asp-items="Model.Films">
+                            <option value="">-- Всі фільми --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="FilterHallId" class="control-label text-muted">Поточний зал</label>
+                        <select asp-for="FilterHallId" class="form-control bg-dark text-white" asp-items="Model.Halls">
+                            <option value="">-- Всі зали --</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 form-group mb-3">
+                            <label asp-for="DateFrom" class="control-label text-muted"></label>
+                            <input asp-for="DateFrom" class="form-control bg-dark text-white" />
+                        </div>
+                        <div class="col-6 form-group mb-3">
+                            <label asp-for="DateTo" class="control-label text-muted"></label>
+                            <input asp-for="DateTo" class="form-control bg-dark text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 ps-4">
+                    <h5 class="text-white mb-3">2. Що змінити</h5>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="NewPrice" class="control-label text-warning">💰 Встановити нову ціну (грн)</label>
+                        <input asp-for="NewPrice" class="form-control bg-dark text-white border-warning" placeholder="Залиште пустим, щоб не міняти" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="NewHallId" class="control-label text-warning">🏛 Перенести в інший зал</label>
+                        <select asp-for="NewHallId" class="form-control bg-dark text-white border-warning" asp-items="Model.Halls">
+                            <option value="">-- Не змінювати зал --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4" />
+
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Index" class="btn btn-outline-light">Скасувати</a>
+                <input type="submit" value="Застосувати зміни" class="btn btn-warning fw-bold px-5" onclick="return confirm('Ви впевнені, що хочете змінити ці сеанси?');" />
+            </div>
+        </form>
+    </div>
+</div>

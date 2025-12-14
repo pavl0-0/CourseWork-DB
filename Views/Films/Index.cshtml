@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Kino.Models.Film>
+
+@{
+    ViewData["Title"] = "Фільми";
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Помилка!</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="container">
+    <div class="page-header">Каталог фільмів</h1>
+        <a asp-action="Create" class="btn-cinema">Додати фільм</a>
+    </div>
+
+    <div class="cinema-grid">
+        @foreach (var item in Model)
+        {
+            <div class="genre-card" style="padding: 0; overflow: hidden; text-align: left;">
+
+                <div style="height: 300px; background-color: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    @if (!string.IsNullOrEmpty(item.PosterUrl))
+                    {
+                        <img src="~/images/posters/@item.PosterUrl" alt="@item.TitleUkrainian" style="width: 100%; height: 100%; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <span style="font-size: 3rem;">🎬</span>
+                    }
+                </div>
+
+                <div style="padding: 15px;">
+                    <h5 class="genre-name" style="margin-bottom: 5px; font-size: 1.1rem;">@item.TitleUkrainian</h5>
+                    <p style="color: #b3b3b3; font-size: 0.85rem; margin-bottom: 10px;">
+                        @item.TitleOriginal <br />
+                        ⏳ @item.DurationMinutes хв | @item.AgeRating
+                    </p>
+
+                    <div style="margin-bottom: 15px;">
+                        @foreach (var fg in item.FilmGenres)
+                        {
+                            <span class="badge bg-secondary" style="font-size: 0.7rem;">@fg.Genre.Name</span>
+                        }
+                    </div>
+
+                    <div class="card-actions" style="text-align: center;">
+                        <a asp-action="Edit" asp-route-id="@item.FilmId">Edit</a> |
+                        <a asp-action="ManageCrew" asp-route-id="@item.FilmId" style="color: #ffc107;">Актори</a> |
+                        <a asp-action="Details" asp-route-id="@item.FilmId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.FilmId" class="delete-link">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
